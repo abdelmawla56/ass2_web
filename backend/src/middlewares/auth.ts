@@ -14,6 +14,37 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ error: 'No token provided' });
   }
 
+  // Support for Mock Auth for testing
+  if (process.env.USE_MOCK_AUTH === 'true' && token === 'mock-token') {
+    const mockUser = {
+      uid: 'mock-user-123',
+      name: 'Test Ghost',
+      picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ghost',
+      email: 'test@ghost.com',
+      email_verified: true,
+      auth_time: Math.floor(Date.now() / 1000),
+      iss: '',
+      aud: '',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      sub: 'mock-user-123',
+      firebase: { identities: {}, sign_in_provider: 'google.com' }
+    } as admin.auth.DecodedIdToken;
+
+    req.user = mockUser;
+    
+    await User.findOneAndUpdate(
+      { uid: mockUser.uid },
+      { 
+        displayName: mockUser.name, 
+        photoURL: mockUser.picture,
+        lastSeen: new Date()
+      },
+      { upsert: true, new: true }
+    );
+    
+    return next();
+  }
+
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     req.user = decodedToken;

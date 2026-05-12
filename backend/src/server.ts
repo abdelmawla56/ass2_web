@@ -38,6 +38,7 @@ io.on('connection', async (socket) => {
     const redisClient = getRedisClient();
     await redisClient.sAdd('online_users', uid);
     socket.userUid = uid; // Store on socket object for disconnect cleanup
+    socket.join(uid); // Join private room for targeted messaging
     
     const activeUsers = await redisClient.sMembers('online_users');
     io.emit('active_users_update', activeUsers);

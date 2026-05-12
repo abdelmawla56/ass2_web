@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { auth, provider, signInWithPopup } from "@/lib/firebase";
+import { auth, provider, signInWithPopup, onAuthStateChanged } from "@/lib/firebase";
 import { socket } from "@/lib/socket";
 import GhostChat from "@/components/GhostChat";
 import PulseMonitor from "@/components/PulseMonitor";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { type User } from "firebase/auth";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
